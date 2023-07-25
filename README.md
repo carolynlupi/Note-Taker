@@ -1,2 +1,2 @@
-# Note-Taker-
+# Note-Taker
 Note Taker
