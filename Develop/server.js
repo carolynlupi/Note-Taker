@@ -1,125 +1,97 @@
-//======================================================================
-// Welcome to my Note-Taker, based on Express.js.
-
-// Below are my dependencies; I'm unhealthily co-dependent.
-//======================================================================
-
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const database = require("./db/db")
-
-//======================================================================
-// This sets up the Express App
-//======================================================================
-
-var app = express();
-var PORT = process.env.PORT || 3000;
-
-//==============================================================================
-// Gotta link to my assets!
-app.use(express.static('public'));
-
-//==============================================================================
-// This sets up data parsing-- Express will interpret it/format data as JSON.
-// This is required for API calls!
-//==============================================================================
+//require all dependencies
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const app = express();
+var PORT = process.env.PORT || 3001;
+app.use(express.static(__dirname + '/public'));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-//==============================================================================
-// On page load, it should start with index.html. First get it and then listen.
-//==============================================================================
-
-app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname, "/public/index.html"));
+//direct user to correct page depending on url
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "./public/index.html"))
+});
+app.get("/notes", (req, res) => {
+   res.sendFile(path.join(__dirname, "./public/notes.html"))
 });
 
-// Notes html and it's "url"
-app.get("/notes", function (req, res) {
-    res.sendFile(path.join(__dirname, "/public/notes.html"));
-})
+//send json of all notes if user accesses /api/notes
+app.get("/api/notes", (req, res) => {
+  fs.readFile(path.join(__dirname, "./db/db.json"), "utf8", (error,notes) => {
+      if (error) {
+          return console.log(error)
+      }
+      res.json(JSON.parse(notes))
+  })
+});
 
-//===============================================================================
-// GET, POST, DELETE API Endpoints.
-//===============================================================================
-
-// Since the GET and POST functions grab from the same route, we can set it once up here.
-app.route("/api/notes")
-    // Grab the notes list (this should be updated for every new note and deleted note.)
-    .get(function (req, res) {
-        res.json(database);
-    })
-
-    // Add a new note to the json db file.
-    .post(function (req, res) {
-        let jsonFilePath = path.join(__dirname, "/db/db.json");
-        let newNote = req.body;
-
-        // This allows the test note to be the original note.
-        let highestId = 99;
-        // This loops through the array and finds the highest ID.
-        for (let i = 0; i < database.length; i++) {
-            let individualNote = database[i];
-
-            if (individualNote.id > highestId) {
-                // highestId will always be the highest numbered id in the notesArray.
-                highestId = individualNote.id;
-            }
+//use POST method to bring user input to backend
+app.post("/api/notes", (req, res) => {
+    //declare const for the note currently being saved by user
+    const currentNote = req.body;
+    //retrieve notes from db.json, get id of last note, add 1 to it to create 
+    //new id, save current note with new id
+  fs.readFile(path.join(__dirname, "./db/db.json"), "utf8", (error, notes) => {
+      if (error) {
+          return console.log(error)
+      }
+      notes = JSON.parse(notes)
+      //assign unique id to each new note depending on last id.
+      //if no items in notes array, assign id as 10
+      if (notes.length > 0) {
+      let lastId = notes[notes.length - 1].id
+      var id =  parseInt(lastId)+ 1
+      } else {
+        var id = 10;
+      }
+      //create new note object
+      let newNote = { 
+        title: currentNote.title, 
+        text: currentNote.text, 
+        id: id 
         }
-        // This assigns an ID to the newNote. 
-        newNote.id = highestId + 1;
-        // We push it to db.json.
-        database.push(newNote)
-
-        // Write the db.json file again.
-        fs.writeFile(jsonFilePath, JSON.stringify(database), function (err) {
-
-            if (err) {
-                return console.log(err);
-            }
-            console.log("Your note was saved!");
-        });
-        // Gives back the response, which is the user's new note. 
-        res.json(newNote);
-    });
-
-//=================================================================
-// Delete a note based on an ID (cannot be location in array,
-// the location will change if you splice things out)
-// This route is dependent on ID of note.
-//      1. Find note by id via a loop
-//      2. Splice note out of array of notes.
-//      3. Re-write db.json, just without that newly deleted note.
-//=================================================================
-
-app.delete("/api/notes/:id", function (req, res) {
-    let jsonFilePath = path.join(__dirname, "/db/db.json");
-    // request to delete note by id.
-    for (let i = 0; i < database.length; i++) {
-
-        if (database[i].id == req.params.id) {
-            // Splice takes i position, and then deletes the 1 note.
-            database.splice(i, 1);
-            break;
+      //merge new note with existing notes array
+      var newNotesArr = notes.concat(newNote)
+      //write new array to db.json file and retuern it to user
+      fs.writeFile(path.join(__dirname, "./db/db.json"), JSON.stringify(newNotesArr), (error, data) => {
+        if (error) {
+          return error
         }
+        console.log(newNotesArr)
+        res.json(newNotesArr);
+      })
+  });
+ 
+});
+
+//delete chosen note using delete http method
+app.delete("/api/notes/:id", (req, res) => {
+  let deleteId = JSON.parse(req.params.id);
+  console.log("ID to be deleted: " ,deleteId);
+  fs.readFile(path.join(__dirname, "./db/db.json"), "utf8", (error,notes) => {
+    if (error) {
+        return console.log(error)
     }
-    // Write the db.json file again.
-    fs.writeFileSync(jsonFilePath, JSON.stringify(database), function (err) {
+   let notesArray = JSON.parse(notes);
+   //loop through notes array and remove note with id matching deleteId
+   for (var i=0; i<notesArray.length; i++){
+     if(deleteId == notesArray[i].id) {
+       notesArray.splice(i,1);
 
-        if (err) {
-            return console.log(err);
-        } else {
-            console.log("Your note was deleted!");
+       fs.writeFile(path.join(__dirname, "./db/db.json"), JSON.stringify(notesArray), (error, data) => {
+        if (error) {
+          return error
         }
-    });
-    res.json(database);
+        console.log(notesArray)
+        res.json(notesArray);
+      })
+     }
+  }
+  
+}); 
 });
 
-//===========================================================================
-// Listening is the last thing Express should do. This sets up the server.
-//===========================================================================
-app.listen(PORT, function () {
-    console.log("App listening on PORT " + PORT);
-});
+//initialize port to start listening
+app.listen(PORT, () => console.log(`App listening on PORT ${PORT}`));
