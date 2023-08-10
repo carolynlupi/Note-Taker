@@ -10,7 +10,10 @@ module.exports = (app) => {
 
     // GET /api/notes should read the db.json file and return all saved notes as JSON.
     app.get('/notes', (req, res) => {
-        res.sendFile(path.join(__dirname, '../db/db.json'));
+        let db = fs.readFileSync('db/db.json', 'utf8');
+        console.log('Read DB:', db); // Check the contents of db
+        db = JSON.parse(db);
+        // ...
     });
 
     // POST /api/notes should receive a new note to save on the request body, 
@@ -18,7 +21,7 @@ module.exports = (app) => {
     app.post('/notes', (req, res) => {
         let db = fs.readFileSync('db/db.json');
         db = JSON.parse(db);
-    
+
         // creating body for note
         let userNote = {
             title: req.body.title,
@@ -29,11 +32,11 @@ module.exports = (app) => {
         // pushing created note to be written in the db.json file
         db.push(userNote);
         fs.writeFileSync('db/db.json', JSON.stringify(db));
-    
+
         // Sending the response after adding the note
         res.json(userNote);
     });
-    
+
 
 
     // DELETE /api/notes/:id should receive a query parameter containing the id of a note to delete.
@@ -44,9 +47,9 @@ module.exports = (app) => {
         let deleteNotes = db.filter(item => item.id !== req.params.id);
         // Rewriting notes to db.json
         fs.writeFileSync('db/db.json', JSON.stringify(deleteNotes));
-    
+
         // Sending the response after deleting the note
         res.json(deleteNotes);
     });
-    
+
 };
