@@ -5,8 +5,8 @@ $(document).ready(function () {
   var $newNoteBtn = $(".new-note");
   var $noteList = $(".list-container .list-group");
 
+
   var activeNote = {};
-  
   
   // Handle saving a note
   var handleNoteSave = function () {
@@ -17,7 +17,6 @@ $(document).ready(function () {
 
     // Save the note to localStorage
     saveNoteToLocal(newNote);
-
     getAndRenderNotes();
     renderActiveNote();
   };
