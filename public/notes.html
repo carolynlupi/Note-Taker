@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
 <head>
+  <!--Adding in jQuery, bootstrap style & local style.css file-->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
@@ -13,15 +13,20 @@
   <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 
+<!--header-->
 <body>
   <nav class="navbar navbar-dark bg-dark">
     <a class="navbar-brand" href="index.html">Note Taker
     </a>
+
+<!--save & new note icons-->
     <div class="icons">
       <i class="fas fa-save text-light save-note"></i>
       <i class="fas fa-pen text-light new-note"></i>
     </div>
   </nav>
+
+<!--side area where notes save-->
   <div class="container-fluid">
     <div class="row">
       <div class="col-4 list-container">
@@ -30,13 +35,16 @@
           </ul>
         </div>
       </div>
+
+<!--area for text area to add-->
       <div class="col-8">
         <input class="note-title" placeholder="Note Title" maxlength="28" type="text" />
         <textarea class="note-textarea" placeholder="Note Text"></textarea>
       </div>
     </div>
   </div>
+  
+<!--adding in js file-->
   <script src="./assets/js/index.js"></script>
 </body>
-
 </html>
