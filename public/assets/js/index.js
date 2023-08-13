@@ -1,25 +1,46 @@
 $(document).ready(function () {
+ // variables
   var $noteTitle = $(".note-title");
   var $noteText = $(".note-textarea");
   var $saveNoteBtn = $(".save-note");
   var $newNoteBtn = $(".new-note");
   var $noteList = $(".list-container .list-group");
 
-
+// this is used to keep track of the note in the textarea
   var activeNote = {};
   
-  // Handle saving a note
+// Handle saving a note
   var handleNoteSave = function () {
     var newNote = {
+      id: generateUniqueId(),
       title: $noteTitle.val(),
       text: $noteText.val(),
     };
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/notes', // This should match your server route
+      data: newNote,
+      success: function (data) {
+        console.log('Note saved:', data);
+        getAndRenderNotes();
+        renderActiveNote();
+      },
+      error: function (error) {
+        console.error('Error saving note:', error);
+      }
+    });
 
     // Save the note to localStorage
     saveNoteToLocal(newNote);
     getAndRenderNotes();
     renderActiveNote();
   };
+
+  function generateUniqueId() {
+    // timestamp for simplicity
+    return Date.now().toString();
+  }
 
   // Save a note to localStorage
   var saveNoteToLocal = function (note) {
@@ -120,6 +141,6 @@ $(document).ready(function () {
   $noteList.on("click", ".delete-note", handleNoteDelete);
   $noteTitle.on("keyup", handleRenderSaveBtn);
   $noteText.on("keyup", handleRenderSaveBtn);
-
+ 
   getAndRenderNotes();
 });

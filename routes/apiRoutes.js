@@ -1,44 +1,46 @@
-// adding in dependencies 
-const path = require('path');
-const fs = require('fs')
+const express = require('express');
+const router = express.Router(); // Create an instance of an Express router
+const fs = require('fs');
+const uniqid = require('uniqid'); // npm package for unique IDs
 
-// npm package that allows for unique ids to be created
-var uniqid = require('uniqid');
+// Function to save note to db.json
+function saveNoteToDB(note) {
+    console.log('Saving note to db.json:', note);
+  fs.readFile('db.json', 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading db.json:', err);
+      return;
+    }
 
-// routing
-module.exports = (app) => {
-    // read the db.json file and return all saved notes as JSON.
-    app.get('/notes', (req, res) => {
-        let db = fs.readFileSync('db/db.json', 'utf8');
-        console.log('Read DB:', db);
-        db = JSON.parse(db);
+    const notes = JSON.parse(data);
+    notes.push(note);
+
+    fs.writeFile('db.json', JSON.stringify(notes, null, 2), 'utf8', (err) => {
+      if (err) {
+        console.error('Error writing to db.json:', err);
+      } else {
+        console.log('Note saved to db.json');
+      }
     });
+  });
+}
 
-    // receive a new note to save on the request body, 
-    // add it to the db.json file, and then return the new note to the client. 
-    app.post('/notes', (req, res) => {
-        let db = fs.readFileSync('db/db.json');
-        db = JSON.parse(db);
-        let userNote = {
-            title: req.body.title,
-            text: req.body.text,
-            id: uniqid(),
-        };
-        db.push(userNote);
-        fs.writeFileSync('db/db.json', JSON.stringify(db));
-        res.json(userNote);
-    });
-
-    // receive a query parameter containing the id of a note to delete.
-    app.delete('/notes/:id', (req, res) => {
-        // reading notes from db.json
-        let db = JSON.parse(fs.readFileSync('db/db.json'));
-        // removing note with id
-        let deleteNotes = db.filter(item => item.id !== req.params.id);
-        // Rewriting notes to db.json
-        fs.writeFileSync('db/db.json', JSON.stringify(deleteNotes));
-        // Sending the response after deleting the note
-        res.json(deleteNotes);
-    });
-
-};
+// Route to handle saving a new note
+router.post('/api/notes', (req, res) => {
+    console.log('Received POST request to /api/notes', req.body);
+    const newNote = {
+      id: generateUniqueId(),
+      title: req.body.title,
+      text: req.body.text,
+    };
+  
+    saveNoteToDB(newNote);
+    res.json(newNote);
+  });
+  
+  // Function to generate a unique ID
+function generateUniqueId() {
+    return Date.now().toString();
+  }
+  
+module.exports = router; // Export the Express router
