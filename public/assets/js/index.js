@@ -1,4 +1,4 @@
-$(document).ready(function () {
+
  // variables
   var $noteTitle = $(".note-title");
   var $noteText = $(".note-textarea");
@@ -15,11 +15,11 @@ $(document).ready(function () {
       id: generateUniqueId(),
       title: $noteTitle.val(),
       text: $noteText.val(),
-    };
+    }
 
     $.ajax({
       type: 'POST',
-      url: '/api/notes', // This should match your server route
+      url: '/notes', // This should match your server route
       data: newNote,
       success: function (data) {
         console.log('Note saved:', data);
@@ -109,7 +109,7 @@ $(document).ready(function () {
   };
 
   var renderNoteList = function (notes) {
-    console.log("$noteList:", $noteList); // Corrected log statement
+    console.log("$noteList:", $noteList); 
     $noteList.empty();
 
     var noteListItems = [];
@@ -126,7 +126,6 @@ $(document).ready(function () {
       $li.append($span, $delBtn);
       noteListItems.push($li);
     }
-
     $noteList.append(noteListItems);
   };
 
@@ -143,4 +142,4 @@ $(document).ready(function () {
   $noteText.on("keyup", handleRenderSaveBtn);
  
   getAndRenderNotes();
-});
+

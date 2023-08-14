@@ -1,7 +1,27 @@
 const express = require('express');
-const router = express.Router(); // Create an instance of an Express router
+const router = express.Router(); 
 const fs = require('fs');
-const uniqid = require('uniqid'); // npm package for unique IDs
+const uniqid = require('uniqid'); 
+
+// Route to handle saving a new note
+router.post('/notes', (req, res) => {
+    console.log('hello??');
+    console.log('Received POST request to /api/notes', req.body);
+    const newNote = {
+      id: generateUniqueId(),
+      title: req.body.title,
+      text: req.body.text,
+    };
+  
+    saveNoteToDB(newNote);
+    res.json(newNote);
+  });
+  
+  // Function to generate a unique ID
+function generateUniqueId() {
+    return Date.now().toString();
+  }
+  
 
 // Function to save note to db.json
 function saveNoteToDB(note) {
@@ -25,22 +45,4 @@ function saveNoteToDB(note) {
   });
 }
 
-// Route to handle saving a new note
-router.post('/api/notes', (req, res) => {
-    console.log('Received POST request to /api/notes', req.body);
-    const newNote = {
-      id: generateUniqueId(),
-      title: req.body.title,
-      text: req.body.text,
-    };
-  
-    saveNoteToDB(newNote);
-    res.json(newNote);
-  });
-  
-  // Function to generate a unique ID
-function generateUniqueId() {
-    return Date.now().toString();
-  }
-  
 module.exports = router; // Export the Express router
