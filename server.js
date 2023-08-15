@@ -4,9 +4,10 @@ const htmlRoutes = require('./routes/htmlRoutes');
 const notesRoutes = require('./routes/notesRoutes'); 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const jsonServer = require('json-server');
 
 const cors = require('cors'); // Import the cors package
-
+const router = jsonServer.router('db.json');
 
 // Use the cors middleware to allow requests from any origin
 app.use(cors());
