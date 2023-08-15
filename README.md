@@ -3,7 +3,6 @@
 ## Table of Contents
   * [Description](#description)
   * [Technologies](#technologies-used)
-  * [Challenges](#challenges)
   * [Future Implementations](#future-implementations)
   * [User Story](#user-story)
   * [Demonstration](#demonstration)
@@ -16,11 +15,6 @@ This project employs Node.js and Express.js to create a browser-based note-takin
 ## Technologies
 * [nodejs](https://nodejs.org/en/)
 * [express.js](https://expressjs.com/)
-
-## Challenges
-* Corretly implementing CRUD protocol
-* Working with Heroku for live deployment of a non-static page
-* Learning about and implementing different routes
 
 ## Future Implentation
 * Integration of a calendar feature
