@@ -4,7 +4,7 @@ const htmlRoutes = require('./routes/htmlRoutes');
 const notesRoutes = require('./routes/notesRoutes'); 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const express = require('express');
+
 const cors = require('cors'); // Import the cors package
 
 
